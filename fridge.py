@@ -76,13 +76,23 @@ def add_by_note(items: Dict[str, List[Dict[str, Any]]], note: str) -> None:
 
 
 def find(items: Dict[str, List[Dict[str, Any]]], needle: str) -> List[str]:
-    """Ищет продукты по подстроке без учета регистра."""
-    pass
+    """Ищет продукты в холодильнике по подстроке без учета регистра."""
+    query = needle.lower()
+    return [title for title in items.keys() if query in title.lower()]
 
 
 def get_amount(items: Dict[str, List[Dict[str, Any]]], needle: str) -> Decimal:
-    """Возвращает суммарное количество продуктов, подходящих под запрос."""
-    pass
+    """Возвращает общее количество продукта (число типа Decimal) по запросу."""
+    query = needle.lower()
+    total_amount = Decimal('0')
+
+    # Ищем во всех совпавших наименованиях и суммируем все партии
+    for title, batches in items.items():
+        if query in title.lower():
+            for batch in batches:
+                total_amount += batch['amount']
+
+    return total_amount
 
 
 def get_expired(
