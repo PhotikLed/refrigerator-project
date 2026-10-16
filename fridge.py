@@ -99,5 +99,25 @@ def get_expired(
     items: Dict[str, List[Dict[str, Any]]],
     in_advance_days: int = 0
 ) -> List[Tuple[str, Decimal]]:
-    """Возвращает список просроченных продуктов с их количеством."""
-    pass
+    """Возвращает список кортежей (название, количество) просроченных продуктов.
+
+    Просроченными считаются продукты, срок хранения которых истек на момент вызова
+    или истечет в течение in_advance_days дней.
+    """
+    current_date = datetime.date.today()
+    cutoff_date = current_date + datetime.timedelta(days=in_advance_days)
+
+    expired_list: List[Tuple[str, Decimal]] = []
+
+    for title, batches in items.items():
+        expired_amount = Decimal('0')
+        for batch in batches:
+            exp_date = batch.get('expiration_date')
+            # Сравниваем только партии с установленным сроком годности
+            if exp_date is not None and exp_date <= cutoff_date:
+                expired_amount += batch['amount']
+
+        if expired_amount > Decimal('0'):
+            expired_list.append((title, expired_amount))
+
+    return expired_list
